@@ -10,6 +10,7 @@ export default function ProductDetail({ product }) {
       <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5">
         <img src={product.cover} alt={product.title} className="w-full h-full object-cover" />
       </div>
+
       <div className="space-y-4">
         <h1 className="text-3xl font-extrabold">{product.artist} — {product.title}</h1>
         <p className="text-white/70">{product.genre} • {product.year}</p>

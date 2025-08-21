@@ -1,14 +1,33 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ProductGrid from "./ProductGrid";
 import FilterBar from "./FilterBar";
 
 export default function HomeContainer({ products }) {
   const [filters, setFilters] = useState({ q: "", genre: "", sort: "" });
-  const filtered = products.filter(p =>
-    p.title.toLowerCase().includes(filters.q.toLowerCase()) ||
-    p.artist.toLowerCase().includes(filters.q.toLowerCase())
+
+  const genres = useMemo(
+    () => Array.from(new Set((products || []).map(p => p.genre))).filter(Boolean).sort(),
+    [products]
   );
+
+  const filtered = useMemo(() => {
+    let list = [...(products || [])];
+
+    if (filters.q) {
+      const s = filters.q.toLowerCase();
+      list = list.filter(p =>
+        p.title.toLowerCase().includes(s) ||
+        p.artist.toLowerCase().includes(s)
+      );
+    }
+    if (filters.genre) list = list.filter(p => p.genre === filters.genre);
+    if (filters.sort === "price-asc")  list.sort((a,b) => a.price - b.price);
+    if (filters.sort === "price-desc") list.sort((a,b) => b.price - a.price);
+    if (filters.sort === "year-desc")  list.sort((a,b) => b.year - a.year);
+
+    return list;
+  }, [products, filters]);
 
   return (
     <div className="space-y-8">
@@ -17,7 +36,7 @@ export default function HomeContainer({ products }) {
         <p className="text-white/80 mt-2">Descubrí ediciones icónicas y nuevas joyas en vinilo.</p>
       </section>
 
-      <FilterBar value={filters} onChange={setFilters} />
+      <FilterBar genres={genres} value={filters} onChange={setFilters} />
       <ProductGrid items={filtered} />
     </div>
   );

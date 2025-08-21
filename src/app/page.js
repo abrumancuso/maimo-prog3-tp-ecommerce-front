@@ -1,9 +1,11 @@
 import HomeContainer from "@/components/HomeContainer";
 
 export default async function Page() {
-  // api real
-  const res = await fetch("https://miapi.com/products", { cache: "no-store" });
-  const products = await res.json();
+  // mock local temporal
+  const products = [
+    { id: "1", title: "Discovery", artist: "Daft Punk", genre: "Electronica", year: 2001, price: 45.9, cover: "/covers/discovery.jpg" },
+    { id: "2", title: "Rumours", artist: "Fleetwood Mac", genre: "Rock", year: 1977, price: 39.5, cover: "/covers/rumours.jpg" },
+  ];
 
   return <HomeContainer products={products} />;
 }
