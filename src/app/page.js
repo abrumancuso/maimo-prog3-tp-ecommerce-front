@@ -7,7 +7,7 @@ export default function Page() {
   const { products, fetchProducts, loading, error } = useShop();
 
   useEffect(() => {
-    fetchProducts(); // GET /products
+    fetchProducts(); 
   }, []);
 
   if (loading) return <div className="py-12">Cargando catálogo…</div>;
