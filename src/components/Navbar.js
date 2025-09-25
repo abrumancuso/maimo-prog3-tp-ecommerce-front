@@ -23,6 +23,7 @@ export default function Navbar() {
         <nav className="flex gap-1">
           <NavLink href="/">Inicio</NavLink>
           <NavLink href="/favorites">Favoritos</NavLink>
+          <NavLink href="/checkout">Checkout</NavLink>
         </nav>
         <div className="text-sm">
           {totalItems > 0
