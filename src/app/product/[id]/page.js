@@ -6,15 +6,27 @@ import ProductDetail from "@/components/ProductDetail";
 
 export default function ProductPage() {
   const { id } = useParams();
-  const { product, fetchProduct, loading, error } = useShop();
+  const { product, setProduct, loading, setLoading, error, setError } = useShop();
 
   useEffect(() => {
-    if (id) fetchProduct(id);
+    const fetchOne = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`http://localhost:4000/products/${id}`);
+        const data = await res.json();
+        setProduct(data.product || data);
+      } catch (e) {
+        setError("Error al cargar producto");
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchOne();
   }, [id]);
 
-  if (loading)   return <div className="py-12">Cargando producto…</div>;
-  if (error)     return <div className="py-12 text-red-400">Error: {error}</div>;
-  if (!product)  return <div className="py-12">Producto no encontrado.</div>;
+  if (loading) return <div className="py-12">Cargando producto…</div>;
+  if (error) return <div className="py-12 text-red-400">{error}</div>;
+  if (!product) return <div className="py-12">Producto no encontrado.</div>;
 
   return <ProductDetail product={product} />;
 }
