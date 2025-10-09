@@ -56,7 +56,7 @@ export default function ProductDetail({ product }) {
       <div className="space-y-5">
         <h1 className="text-3xl font-extrabold">{product.title || "—"}</h1>
         <p className="text-white/70">
-          {product.genre || "—"} {product.year ? `• ${product.year}` : ""}
+          {product.genre} {product.year ? `• ${product.year}` : ""}
         </p>
 
         {product.description ? (

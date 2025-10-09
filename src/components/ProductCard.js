@@ -15,10 +15,10 @@ export default function ProductCard({ product }) {
 
       <div className="p-4 space-y-1">
         <span className="text-xs uppercase tracking-wide text-white/60">
-          {product.genre || "—"} {product.year ? `• ${product.year}` : ""}
+          {product.genre} {product.year ? `• ${product.year}` : ""}
         </span>
         <h3 className="font-semibold leading-tight">
-          {product.title || "—"}
+          {product.title}
         </h3>
         <p className="pt-1 text-lg font-bold">
           ${priceToShow.toLocaleString("es-AR")}
