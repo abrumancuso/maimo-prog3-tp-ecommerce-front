@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import { useShop } from "@/context/ShopContext";
+import { formatARS } from "@/utils/format";
 
 function calcularPrecio({ price, condition, packaging, protection, giftWrap }) {
   let final = Number(price) || 0;
@@ -23,10 +24,14 @@ export default function ProductDetail({ product }) {
   const [qty, setQty]               = useState(1);
 
   const finalPrice = useMemo(
-    () => calcularPrecio({
-      price: product.basePrice ?? product.price ?? 0,
-      condition, packaging, protection, giftWrap
-    }),
+    () =>
+      calcularPrecio({
+        price: product.basePrice ?? product.price ?? 0,
+        condition,
+        packaging,
+        protection,
+        giftWrap,
+      }),
     [product.basePrice, product.price, condition, packaging, protection, giftWrap]
   );
 
@@ -34,12 +39,14 @@ export default function ProductDetail({ product }) {
     addToCart({
       id: product.id,
       title: product.title,
-      price: finalPrice,          // al carrito va el precio final
+      price: finalPrice,
       cover: product.cover,
       qty,
-      // por si luego querés ver opciones en el carrito:
-      condition, packaging, protection, giftWrap,
-      basePrice: product.basePrice ?? product.price
+      condition,
+      packaging,
+      protection,
+      giftWrap,
+      basePrice: product.basePrice ?? product.price,
     });
   };
 
@@ -64,7 +71,7 @@ export default function ProductDetail({ product }) {
         ) : null}
 
         <div className="text-4xl font-extrabold mt-2">
-          ${finalPrice.toLocaleString("es-AR")}
+          ${formatARS(finalPrice)}
         </div>
 
         <div className="grid sm:grid-cols-2 gap-6">
@@ -73,7 +80,7 @@ export default function ProductDetail({ product }) {
             <select
               className="w-full rounded-xl bg-white/5 border border-white/15 px-3 py-2"
               value={condition}
-              onChange={e => setCondition(e.target.value)}
+              onChange={(e) => setCondition(e.target.value)}
             >
               <option value="new">Nuevo</option>
               <option value="used">Usado</option>
@@ -83,7 +90,7 @@ export default function ProductDetail({ product }) {
             <select
               className="w-full rounded-xl bg-white/5 border border-white/15 px-3 py-2"
               value={packaging}
-              onChange={e => setPackaging(e.target.value)}
+              onChange={(e) => setPackaging(e.target.value)}
             >
               <option value="vinyl_only">Vinilo solo</option>
               <option value="vinyl_with_box">Vinilo + caja</option>
@@ -98,7 +105,7 @@ export default function ProductDetail({ product }) {
                 id="prot"
                 type="checkbox"
                 checked={protection}
-                onChange={e => setProtection(e.target.checked)}
+                onChange={(e) => setProtection(e.target.checked)}
               />
               <label htmlFor="prot" className="text-white/80">Con protección</label>
             </div>
@@ -107,7 +114,7 @@ export default function ProductDetail({ product }) {
                 id="gift"
                 type="checkbox"
                 checked={giftWrap}
-                onChange={e => setGiftWrap(e.target.checked)}
+                onChange={(e) => setGiftWrap(e.target.checked)}
               />
               <label htmlFor="gift" className="text-white/80">Envuelto para regalo</label>
             </div>
@@ -117,7 +124,7 @@ export default function ProductDetail({ product }) {
               type="number"
               min={1}
               value={qty}
-              onChange={e => setQty(Math.max(1, Number(e.target.value) || 1))}
+              onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))}
               className="w-24 rounded-xl bg-white/5 border border-white/15 px-3 py-2"
             />
           </div>
@@ -132,7 +139,9 @@ export default function ProductDetail({ product }) {
           </button>
           <button
             onClick={() => toggleFav(product.id)}
-            className={`rounded-xl px-5 py-3 border border-white/20 hover:bg-white/10 ${isFav ? "text-fuchsia-400" : ""}`}
+            className={`rounded-xl px-5 py-3 border border-white/20 hover:bg-white/10 ${
+              isFav ? "text-fuchsia-400" : ""
+            }`}
           >
             {isFav ? "Quitar de Favoritos" : "Agregar a Favoritos"}
           </button>
