@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useShop } from "@/context/ShopContext";
 import FormCheckout from "./FormCheckout";
 
-// 🔸 Mapa de traducciones
 const LABELS = {
   // Estado
   new: "Nuevo",
@@ -109,7 +108,6 @@ export default function CheckoutContainer() {
         </div>
       </div>
 
-      {/* 🧾 Formulario de datos del comprador */}
       <FormCheckout onSubmit={handleSubmit} />
 
       <div className="flex gap-3">
