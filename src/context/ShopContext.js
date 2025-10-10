@@ -12,7 +12,6 @@ function makeKey({ id, condition, packaging, protection, giftWrap }) {
 }
 
 export function ShopProvider({ children }) {
-  // ---- Catálogo / detalle (necesarios para tus pages) ----
   const [products, setProducts] = useState([]);     // listado home / categoría
   const [product, setProduct]   = useState(null);   // detalle
   const [loading, setLoading]   = useState(false);
@@ -83,7 +82,6 @@ export function ShopProvider({ children }) {
   const totalPrice = cart.reduce((a, b) => a + b.qty * b.price, 0);
 
   async function checkout(customer) {
-    // Simulación simple. Cuando tengas API real, reemplazá esto.
     return new Promise((resolve) =>
       setTimeout(() => resolve({
         ok: true,
