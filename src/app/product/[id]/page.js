@@ -1,32 +1,50 @@
+"use client";
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { useShop } from "@/context/ShopContext";
 import ProductDetail from "@/components/ProductDetail";
 
-const MOCK_PRODUCTS = [
-  { id: "1", title: "Discovery", artist: "Daft Punk", genre: "Electronica", year: 2001, price: 45.9, cover: "https://picsum.photos/seed/discovery/1000/1000", description: "Vista previa sin API." },
-  { id: "2", title: "Rumours", artist: "Fleetwood Mac", genre: "Rock", year: 1977, price: 39.5, cover: "https://picsum.photos/seed/rumours/1000/1000", description: "Vista previa sin API." },
-];
+export default function ProductPage() {
+  const { id } = useParams();
+  const { product, setProduct, loading, setLoading, error, setError } = useShop();
 
-export default async function ProductPage({ params }) {
-  let product = null;
+  useEffect(() => {
+    const fetchOne = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`http://localhost:4000/products/${id}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Error al cargar producto");
+        const data = await res.json();
+        const p = data?.product || {};
+        const normalized = {
+          id: p._id || p.id || "",
+          title: p.title || p.name || "",
+          artist: p.artist || "",
+          genre: p.genre || "",
+          year: p.year ?? null,
+          price: typeof p.finalPrice === "number" ? p.finalPrice
+               : typeof p.price === "number" ? p.price : 0,
+          cover: p.cover || "",
+          description: p.description || "",
+          condition: p.condition,
+          packaging: p.packaging,
+          protection: !!p.protection,
+          giftWrap: !!p.giftWrap,
+          basePrice: p.price
+        };
+        setProduct(normalized);
+      } catch (e) {
+        setError(e.message || "Error al cargar producto");
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchOne();
+  }, [id]);
 
-  // API REAL (cuando la tengas, descomentá esto y borrá el mock)
-  // const res = await fetch(`https://miapi.com/products/${params.id}`, { cache: "no-store" });
-  // if (res.ok) product = await res.json();
-
-  // PREVIEW SIN API
-  if (!product) {
-    product =
-      MOCK_PRODUCTS.find(p => p.id === params.id) ||
-      {
-        id: params.id,
-        title: "Vinilo demo",
-        artist: "Artista demo",
-        genre: "Rock",
-        year: 1970,
-        price: 39.9,
-        cover: `https://picsum.photos/seed/${params.id}/1000/1000`,
-        description: "Esta es una vista previa del detalle sin API. Reemplazalo cuando conectes tu endpoint."
-      };
-  }
+  if (loading) return <div className="py-12">Cargando producto…</div>;
+  if (error)   return <div className="py-12 text-red-400">{error}</div>;
+  if (!product) return <div className="py-12">Producto no encontrado.</div>;
 
   return <ProductDetail product={product} />;
 }

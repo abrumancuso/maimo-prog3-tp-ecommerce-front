@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useShop } from "@/context/ShopContext";
+import { formatARS } from "@/utils/format";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -10,7 +11,9 @@ export default function Navbar() {
   const NavLink = ({ href, children }) => (
     <Link
       href={href}
-      className={`px-3 py-2 rounded-lg hover:bg-white/10 ${pathname === href ? "bg-white/10" : "text-white/80"}`}
+      className={`px-3 py-2 rounded-lg hover:bg-white/10 ${
+        pathname === href ? "bg-white/10" : "text-white/80"
+      }`}
     >
       {children}
     </Link>
@@ -20,15 +23,22 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 backdrop-blur border-b border-white/10 bg-black/40">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="font-extrabold text-lg">VinylVerse</Link>
+
         <nav className="flex gap-1">
           <NavLink href="/">Inicio</NavLink>
           <NavLink href="/favorites">Favoritos</NavLink>
+          <NavLink href="/checkout">Checkout</NavLink>
         </nav>
-        <div className="text-sm">
+
+        <Link
+          href="/checkout"
+          aria-label="Ir al checkout"
+          className="text-sm font-semibold hover:opacity-90"
+        >
           {totalItems > 0
-            ? <span className="font-semibold">${totalPrice.toFixed(2)} • {totalItems} ítems</span>
-            : <span className="text-white/70">Carrito vacío</span>}
-        </div>
+            ? `$${formatARS(totalPrice)} • ${totalItems} ítems`
+            : <span className="text-white/70 font-normal">Carrito vacío</span>}
+        </Link>
       </div>
     </header>
   );
