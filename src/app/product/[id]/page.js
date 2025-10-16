@@ -26,7 +26,6 @@ export default function ProductPage() {
                : typeof p.price === "number" ? p.price : 0,
           cover: p.cover || "",
           description: p.description || "",
-          // además pasamos opciones por si las usás en el detalle
           condition: p.condition,
           packaging: p.packaging,
           protection: !!p.protection,
