@@ -22,13 +22,17 @@ export default function ProductCard({ product }) {
       </Link>
 
       <div className="p-4 flex-1 flex flex-col">
-        <span className="text-xs uppercase tracking-wide text-white/60">
-          {product.genre} {product.year ? `• ${product.year}` : ""}
+        <span className="text-xs tracking-wide text-white/60">
+          {product.artist}
         </span>
 
         <h3 className="font-semibold leading-tight line-clamp-2">
           {product.title}
         </h3>
+
+        {typeof product.year === "number" ? (
+          <span className="mt-1 text-xs text-white/60">{product.year}</span>
+        ) : null}
 
         <p className="mt-auto pt-1 text-lg font-bold">
           ${formatARS(priceToShow)}

@@ -1,16 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useShop } from "@/context/ShopContext";
 import ProductGrid from "@/components/ProductGrid";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 function normalize(p) {
   return {
     id: p?.id || p?._id || "",
     title: p?.title || p?.name || "",
     artist: p?.artist || "",
-    genre: p?.genre || "",
+    genre: p?.genre || (Array.isArray(p?.categories) && p?.categories?.[0]?.name) || "",
     year: typeof p?.year === "number" ? p.year : null,
     price: typeof p?.price === "number" ? p.price : 0,
     cover: p?.cover || "",
@@ -37,9 +36,7 @@ export default function FavoritesContainer() {
       try {
         const results = await Promise.all(
           favorites.map(async (id) => {
-            const res = await fetch(`${API}/products/${id}`, { cache: "no-store" });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products/${id}`);
             return normalize(data.product || data);
           })
         );
@@ -55,9 +52,7 @@ export default function FavoritesContainer() {
     };
 
     fetchFavs();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [favorites]);
 
   if (!favorites.length) {
