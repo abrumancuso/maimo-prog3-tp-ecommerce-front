@@ -1,36 +1,119 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { useShop } from "@/context/ShopContext";
 import FormCheckout from "./FormCheckout";
 
 const LABELS = {
   new: "Nuevo",
   used: "Usado",
-
   vinyl_only: "Vinilo solo",
   box_only: "Solo caja",
   vinyl_with_box: "Vinilo + Caja",
-
   protection: "Protección",
-  giftWrap: "Envoltura para regalo"
+  giftWrap: "Envoltura para regalo",
 };
 
 function translate(key) {
   return LABELS[key] || key;
 }
+function fmt(n) {
+  return Number(n || 0).toLocaleString("es-AR");
+}
 
 export default function CheckoutContainer() {
   const {
-    cart, totalItems, totalPrice,
-    updateQty, removeFromCart, clearCart, checkout
+    cart,
+    totalItems,
+    totalPrice,
+    updateQty,
+    removeFromCart,
+    clearCart,
+    checkout,
   } = useShop();
-  const [msg, setMsg] = useState("");
+
+  const [placed, setPlaced] = useState(null);
 
   const handleSubmit = async (values) => {
-    const order = await checkout(values);
-    setMsg(`Compra realizada. Pedido: ${order.orderId}`);
+    const resp = await checkout(values);
+    setPlaced(resp.order);
     clearCart();
   };
+
+  if (placed) {
+    const { customer, totals, items, _id } = placed;
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">¡Compra realizada!</h1>
+
+        <p className="text-white/70">
+          Gracias{customer?.name ? `, ${customer.name}` : ""}. Te enviamos un
+          correo a {customer?.email || "tu email"}.
+        </p>
+
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div>
+              <div className="text-sm text-white/60">Nº de orden</div>
+              <div className="font-semibold break-all">{_id}</div>
+            </div>
+            <div>
+              <div className="text-sm text-white/60">Ítems</div>
+              <div className="font-semibold">{totals?.items ?? 0}</div>
+            </div>
+            <div className="text-right sm:text-left">
+              <div className="text-sm text-white/60">Total</div>
+              <div className="font-extrabold text-xl">
+                ${fmt(totals?.amount)}{" "}
+                <span className="text-sm font-normal text-white/60">
+                  {totals?.currency || "ARS"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-white/10 overflow-hidden">
+          <div className="px-4 py-3 bg-white/5 font-semibold">Resumen</div>
+          <div className="divide-y divide-white/10">
+            {items?.map((it, i) => (
+              <div key={i} className="px-4 py-3 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{it.name}</div>
+                  <div className="text-xs text-white/60">
+                    {translate(it?.options?.condition)} •{" "}
+                    {translate(it?.options?.packaging)}
+                    {it?.options?.protection ? ` • ${translate("protection")}` : ""}
+                    {it?.options?.giftWrap ? ` • ${translate("giftWrap")}` : ""}
+                    {" • "}
+                    x{it.qty} @ ${fmt(it.unitPrice)}
+                  </div>
+                </div>
+                <div className="font-semibold whitespace-nowrap">
+                  ${fmt(it.lineTotal)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <Link
+            href="/"
+            className="rounded-xl px-5 py-3 border border-white/20 hover:bg-white/10"
+          >
+            Volver al inicio
+          </Link>
+          <Link
+            href="/"
+            className="rounded-xl px-5 py-3 bg-white text-black font-medium hover:opacity-90"
+          >
+            Seguir comprando
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!cart.length) {
     return (
@@ -49,9 +132,8 @@ export default function CheckoutContainer() {
         {cart.map((item, i) => {
           const key = item.__key || `${item.id}#${i}`;
           const removeId = item.__key || item.id;
-
           const artist = (item.artist || "").trim();
-          const album  = (item.title  || "").trim();
+          const album = (item.title || "").trim();
 
           return (
             <div
@@ -68,7 +150,6 @@ export default function CheckoutContainer() {
                 ) : null}
 
                 <div className="min-w-0 flex-1">
-                  {/* 🟡 Título + Artista con viñeta */}
                   <div className="flex flex-wrap items-baseline gap-1">
                     <span className="font-semibold truncate">{album}</span>
                     {artist && (
@@ -81,21 +162,19 @@ export default function CheckoutContainer() {
                     )}
                   </div>
 
-                  {/* 🧾 Meta */}
                   <div className="text-xs text-white/60 mt-0.5">
-                    {translate(item.options?.condition)} • {translate(item.options?.packaging)}
+                    {translate(item.options?.condition)} •{" "}
+                    {translate(item.options?.packaging)}
                     {item.options?.protection ? ` • ${translate("protection")}` : ""}
                     {item.options?.giftWrap ? ` • ${translate("giftWrap")}` : ""}
                   </div>
 
-                  {/* 💲 Precio */}
                   <div className="text-sm mt-1">
-                    ${item.price?.toLocaleString("es-AR")}
+                    ${fmt(item.price)}
                   </div>
                 </div>
               </div>
 
-              {/* 🧮 Controles */}
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -120,9 +199,7 @@ export default function CheckoutContainer() {
 
       <div className="flex items-center justify-between">
         <div className="text-white/80">Total ítems: {totalItems}</div>
-        <div className="text-2xl font-bold">
-          ${totalPrice.toLocaleString("es-AR")}
-        </div>
+        <div className="text-2xl font-bold">${fmt(totalPrice)}</div>
       </div>
 
       <FormCheckout onSubmit={handleSubmit} />
@@ -135,8 +212,6 @@ export default function CheckoutContainer() {
           Vaciar carrito
         </button>
       </div>
-
-      {msg && <p className="text-sm text-white/80">{msg}</p>}
     </div>
   );
 }
