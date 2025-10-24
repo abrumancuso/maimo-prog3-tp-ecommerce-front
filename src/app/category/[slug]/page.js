@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import axios from "axios";
 import { useParams } from "next/navigation";
 import { useShop } from "@/context/ShopContext";
 import HomeContainer from "@/components/HomeContainer";
@@ -12,9 +13,11 @@ export default function CategoryPage() {
     const fetchCategory = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:4000/products?category=${slug}`);
-        const data = await res.json();
-        setProducts(data.products || data);
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products`, {
+          params: { category: slug }
+        });
+        const list = Array.isArray(data?.products) ? data.products : data;
+        setProducts(list);
       } catch (e) {
         setError("Error al cargar categoría");
       } finally {
@@ -22,7 +25,7 @@ export default function CategoryPage() {
       }
     };
     if (slug) fetchCategory();
-  }, [slug]);
+  }, [slug, setLoading, setError, setProducts]);
 
   if (loading) return <div className="py-12">Cargando categoría…</div>;
   if (error) return <div className="py-12 text-red-400">{error}</div>;

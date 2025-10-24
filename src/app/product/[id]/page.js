@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import axios from "axios";
 import { useParams } from "next/navigation";
 import { useShop } from "@/context/ShopContext";
 import ProductDetail from "@/components/ProductDetail";
@@ -9,24 +10,26 @@ export default function ProductPage() {
   const { product, setProduct, loading, setLoading, error, setError } = useShop();
 
   useEffect(() => {
-    const fetchOne = async () => {
-      setLoading(true);
+    if (!id) return;
+    setLoading(true);
+    setError("");
+    setProduct(null);
+
+    (async () => {
       try {
-        const res = await fetch(`http://localhost:4000/products/${id}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Error al cargar producto");
-        const data = await res.json();
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products/${id}`);
         const p = data?.product || {};
         const normalized = {
           id: p._id || p.id || "",
           title: p.title || p.name || "",
           artist: p.artist || "",
-          genre: p.genre || "",
+          genre: p.genre || (Array.isArray(p.categories) && p.categories[0]?.name) || "",
           year: p.year ?? null,
           price: typeof p.finalPrice === "number" ? p.finalPrice
                : typeof p.price === "number" ? p.price : 0,
           cover: p.cover || "",
           description: p.description || "",
-          // además pasamos opciones por si las usás en el detalle
+          // opciones para el detalle
           condition: p.condition,
           packaging: p.packaging,
           protection: !!p.protection,
@@ -39,9 +42,8 @@ export default function ProductPage() {
       } finally {
         setLoading(false);
       }
-    };
-    if (id) fetchOne();
-  }, [id]);
+    })();
+  }, [id, setError, setLoading, setProduct]);
 
   if (loading) return <div className="py-12">Cargando producto…</div>;
   if (error)   return <div className="py-12 text-red-400">{error}</div>;

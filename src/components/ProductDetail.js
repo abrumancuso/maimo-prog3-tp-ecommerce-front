@@ -17,11 +17,11 @@ export default function ProductDetail({ product }) {
   const { addToCart, favorites, toggleFav } = useShop();
   const isFav = favorites.includes(product.id);
 
-  const [condition, setCondition]   = useState(product.condition ?? "new");
-  const [packaging, setPackaging]   = useState(product.packaging ?? "vinyl_only");
+  const [condition, setCondition] = useState(product.condition ?? "new");
+  const [packaging, setPackaging] = useState(product.packaging ?? "vinyl_only");
   const [protection, setProtection] = useState(!!product.protection);
-  const [giftWrap, setGiftWrap]     = useState(!!product.giftWrap);
-  const [qty, setQty]               = useState(1);
+  const [giftWrap, setGiftWrap] = useState(!!product.giftWrap);
+  const [qty, setQty] = useState(1);
 
   const finalPrice = useMemo(
     () =>
@@ -32,13 +32,22 @@ export default function ProductDetail({ product }) {
         protection,
         giftWrap,
       }),
-    [product.basePrice, product.price, condition, packaging, protection, giftWrap]
+    [
+      product.basePrice,
+      product.price,
+      condition,
+      packaging,
+      protection,
+      giftWrap,
+    ]
   );
 
   const onAdd = () => {
     addToCart({
       id: product.id,
       title: product.title,
+      artist: product.artist,
+      year: product.year,
       price: finalPrice,
       cover: product.cover,
       qty,
@@ -61,10 +70,25 @@ export default function ProductDetail({ product }) {
       </div>
 
       <div className="space-y-5">
-        <h1 className="text-3xl font-extrabold">{product.title || "—"}</h1>
-        <p className="text-white/70">
-          {product.genre} {product.year ? `• ${product.year}` : ""}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold">{product.title || "—"}</h1>
+
+            {product.artist ? (
+              <p className="text-white/80 text-lg">{product.artist}</p>
+            ) : null}
+
+            {typeof product.year === "number" ? (
+              <p className="text-white/70">{product.year}</p>
+            ) : null}
+          </div>
+
+          {product.genre ? (
+            <span className="shrink-0 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-wide text-white/70">
+              {product.genre}
+            </span>
+          ) : null}
+        </div>
 
         {product.description ? (
           <p className="text-white/80">{product.description}</p>
@@ -86,7 +110,9 @@ export default function ProductDetail({ product }) {
               <option value="used">Usado</option>
             </select>
 
-            <label className="mt-4 block text-sm text-white/70">Packaging</label>
+            <label className="mt-4 block text-sm text-white/70">
+              Packaging
+            </label>
             <select
               className="w-full rounded-xl bg-white/5 border border-white/15 px-3 py-2"
               value={packaging}
@@ -107,7 +133,9 @@ export default function ProductDetail({ product }) {
                 checked={protection}
                 onChange={(e) => setProtection(e.target.checked)}
               />
-              <label htmlFor="prot" className="text-white/80">Con protección</label>
+              <label htmlFor="prot" className="text-white/80">
+                Con protección
+              </label>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -116,7 +144,9 @@ export default function ProductDetail({ product }) {
                 checked={giftWrap}
                 onChange={(e) => setGiftWrap(e.target.checked)}
               />
-              <label htmlFor="gift" className="text-white/80">Envuelto para regalo</label>
+              <label htmlFor="gift" className="text-white/80">
+                Envuelto para regalo
+              </label>
             </div>
 
             <label className="mt-4 block text-sm text-white/70">Cantidad</label>

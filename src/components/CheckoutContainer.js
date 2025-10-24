@@ -4,16 +4,13 @@ import { useShop } from "@/context/ShopContext";
 import FormCheckout from "./FormCheckout";
 
 const LABELS = {
-  // Estado
   new: "Nuevo",
   used: "Usado",
 
-  // Packaging
   vinyl_only: "Vinilo solo",
   box_only: "Solo caja",
   vinyl_with_box: "Vinilo + Caja",
 
-  // Extras
   protection: "Protección",
   giftWrap: "Envoltura para regalo"
 };
@@ -52,33 +49,53 @@ export default function CheckoutContainer() {
         {cart.map((item, i) => {
           const key = item.__key || `${item.id}#${i}`;
           const removeId = item.__key || item.id;
+
+          const artist = (item.artist || "").trim();
+          const album  = (item.title  || "").trim();
+
           return (
             <div
               key={key}
               className="flex items-center justify-between gap-4 border border-white/10 rounded-xl p-3 bg-white/5"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 {item.cover ? (
                   <img
                     src={item.cover}
-                    alt={item.title}
+                    alt={album || "Cover"}
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                 ) : null}
-                <div>
-                  <div className="font-semibold">{item.title}</div>
-                  <div className="text-xs text-white/60">
-                    {translate(item.options?.condition)} •{" "}
-                    {translate(item.options?.packaging)}
+
+                <div className="min-w-0 flex-1">
+                  {/* 🟡 Título + Artista con viñeta */}
+                  <div className="flex flex-wrap items-baseline gap-1">
+                    <span className="font-semibold truncate">{album}</span>
+                    {artist && (
+                      <>
+                        <span className="text-white/40">•</span>
+                        <span className="text-sm text-white/60 font-normal truncate">
+                          {artist}
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* 🧾 Meta */}
+                  <div className="text-xs text-white/60 mt-0.5">
+                    {translate(item.options?.condition)} • {translate(item.options?.packaging)}
                     {item.options?.protection ? ` • ${translate("protection")}` : ""}
                     {item.options?.giftWrap ? ` • ${translate("giftWrap")}` : ""}
                   </div>
-                  <div className="text-sm">
+
+                  {/* 💲 Precio */}
+                  <div className="text-sm mt-1">
                     ${item.price?.toLocaleString("es-AR")}
                   </div>
                 </div>
               </div>
 
+              {/* 🧮 Controles */}
               <div className="flex items-center gap-2">
                 <input
                   type="number"

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import axios from "axios";
 import { useShop } from "@/context/ShopContext";
 import HomeContainer from "@/components/HomeContainer";
 
@@ -8,13 +9,10 @@ export default function Page() {
 
   const normalize = (p) => ({
     id: p.id || p._id || "",
-    // el front espera title; la API trae name
     title: p.title || p.name || "",
-    // no tenemos artist en la API: dejamos string vacío
     artist: p.artist || "",
-    genre: p.genre || "",
-    year: p.year ?? null,
-    // prioridad al finalPrice del backend
+    genre: p.genre || (Array.isArray(p.categories) && p.categories[0]?.name) || "",
+    year: typeof p.year === "number" ? p.year : null,
     price: typeof p.finalPrice === "number" ? p.finalPrice
          : typeof p.price === "number" ? p.price : 0,
     cover: p.cover || "",
@@ -26,9 +24,7 @@ export default function Page() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:4000/products", { cache: "no-store" });
-        if (!res.ok) throw new Error("Error al cargar productos");
-        const data = await res.json();
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products`);
         const raw = Array.isArray(data?.products) ? data.products : [];
         setProducts(raw.map(normalize));
       } catch (e) {
@@ -38,7 +34,7 @@ export default function Page() {
       }
     };
     fetchAll();
-  }, []);
+  }, [setLoading, setError, setProducts]);
 
   if (loading) return <div className="py-12">Cargando catálogo…</div>;
   if (error)   return <div className="py-12 text-red-400">Error: {error}</div>;
