@@ -12,13 +12,13 @@ function makeKey({ id, condition, packaging, protection, giftWrap }) {
 }
 
 export function ShopProvider({ children }) {
-  const [products, setProducts] = useState([]); // listado home / categoría
-  const [product, setProduct] = useState(null); // detalle
+  const [products, setProducts] = useState([]);
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [cart, setCart] = useState([]); // [{ __key, id, title, price, cover, qty, options }]
-  const [favorites, setFavorites] = useState([]); // [id]
+  const [cart, setCart] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
   function addToCart(item) {
     const options = {
@@ -86,25 +86,56 @@ export function ShopProvider({ children }) {
   const totalItems = cart.reduce((a, b) => a + b.qty, 0);
   const totalPrice = cart.reduce((a, b) => a + b.qty * b.price, 0);
 
+  function normalizeBase(url) {
+    const fallback = "http://localhost:4000";
+    const base = (url && url.trim()) || fallback;
+    return base.replace(/\/+$/, ""); // sin barra al final
+  }
+
   async function checkout(customer) {
-    return new Promise((resolve) =>
-      setTimeout(
-        () =>
-          resolve({
-            ok: true,
-            orderId:
-              "ORD-" + Math.random().toString(36).slice(2, 8).toUpperCase(),
-            customer,
-            items: cart,
-          }),
-        500
-      )
-    );
+    const API_BASE = normalizeBase(process.env.NEXT_PUBLIC_API_URL);
+    const payload = {
+      customer: {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone || "",
+        address: customer.address || "",
+        city: customer.city || "",
+        zip: customer.zip || "",
+      },
+      items: cart.map((it) => ({
+        productId: it.id,
+        qty: it.qty,
+        options: {
+          condition: it.options?.condition ?? "new",
+          packaging: it.options?.packaging ?? "vinyl_only",
+          protection: !!it.options?.protection,
+          giftWrap: !!it.options?.giftWrap,
+        },
+      })),
+    };
+
+    const res = await fetch(`${API_BASE}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `Error ${res.status}`);
+    }
+
+    const data = await res.json();
+    return {
+      ok: true,
+      orderId: data?.order?._id || "",
+      order: data?.order,
+    };
   }
 
   const value = useMemo(
     () => ({
-      // catálogo / detalle
       products,
       setProducts,
       product,
@@ -113,7 +144,6 @@ export function ShopProvider({ children }) {
       setLoading,
       error,
       setError,
-      // carrito / favs
       cart,
       favorites,
       addToCart,
@@ -123,7 +153,6 @@ export function ShopProvider({ children }) {
       toggleFav,
       totalItems,
       totalPrice,
-      // checkout
       checkout,
     }),
     [products, product, loading, error, cart, favorites, totalItems, totalPrice]
