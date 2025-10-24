@@ -33,9 +33,7 @@ export function ShopProvider({ children }) {
     setCart((prev) => {
       const existing = prev.find((x) => x.__key === key);
       if (existing) {
-        return prev.map((x) =>
-          x.__key === key ? { ...x, qty: x.qty + qty } : x
-        );
+        return prev.map((x) => (x.__key === key ? { ...x, qty: x.qty + qty } : x));
       }
       return [
         ...prev,
@@ -78,9 +76,7 @@ export function ShopProvider({ children }) {
   }
 
   function toggleFav(id) {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setFavorites((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
 
   const totalItems = cart.reduce((a, b) => a + b.qty, 0);
@@ -89,7 +85,7 @@ export function ShopProvider({ children }) {
   function normalizeBase(url) {
     const fallback = "http://localhost:4000";
     const base = (url && url.trim()) || fallback;
-    return base.replace(/\/+$/, ""); // sin barra al final
+    return base.replace(/\/+$/, "");
   }
 
   async function checkout(customer) {

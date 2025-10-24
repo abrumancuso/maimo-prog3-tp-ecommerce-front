@@ -14,10 +14,20 @@ export default function CategoryPage() {
       setLoading(true);
       try {
         const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products`, {
-          params: { category: slug }
+          params: { category: slug },
         });
-        const list = Array.isArray(data?.products) ? data.products : data;
-        setProducts(list);
+        const list = Array.isArray(data?.products) ? data.products : [];
+        const mapped = list.map((p) => ({
+          id: p._id || p.id || "",
+          title: p.name || p.title || "",
+          artist: p.artist || "",
+          genre: (Array.isArray(p.categories) && p.categories[0]?.name) || p.genre || "",
+          year: typeof p.year === "number" ? p.year : null,
+          price: typeof p.finalPrice === "number" ? p.finalPrice : Number(p.price || 0),
+          cover: p.cover || "",
+          description: p.description || "",
+        }));
+        setProducts(mapped);
       } catch (e) {
         setError("Error al cargar categoría");
       } finally {

@@ -6,12 +6,12 @@ import ProductGrid from "@/components/ProductGrid";
 
 function normalize(p) {
   return {
-    id: p?.id || p?._id || "",
-    title: p?.title || p?.name || "",
+    id: p?._id || p?.id || "",
+    title: p?.name || p?.title || "",
     artist: p?.artist || "",
-    genre: p?.genre || (Array.isArray(p?.categories) && p?.categories?.[0]?.name) || "",
+    genre: (Array.isArray(p?.categories) && p?.categories?.[0]?.name) || p?.genre || "",
     year: typeof p?.year === "number" ? p.year : null,
-    price: typeof p?.price === "number" ? p.price : 0,
+    price: typeof p?.finalPrice === "number" ? p.finalPrice : Number(p?.price || 0),
     cover: p?.cover || "",
     description: p?.description || "",
   };
@@ -34,13 +34,10 @@ export default function FavoritesContainer() {
       setLoading(true);
       setError("");
       try {
-        const results = await Promise.all(
-          favorites.map(async (id) => {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products/${id}`);
-            return normalize(data.product || data);
-          })
-        );
-        if (!cancelled) setItems(results.filter(Boolean));
+        const ids = favorites.join(",");
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products`, { params: { ids } });
+        const list = Array.isArray(data?.products) ? data.products : [];
+        if (!cancelled) setItems(list.map(normalize));
       } catch {
         if (!cancelled) {
           setError("No se pudieron cargar tus favoritos");

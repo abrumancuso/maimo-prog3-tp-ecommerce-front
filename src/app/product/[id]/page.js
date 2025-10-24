@@ -19,24 +19,21 @@ export default function ProductPage() {
       try {
         const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}products/${id}`);
         const p = data?.product || {};
-        const normalized = {
+        setProduct({
           id: p._id || p.id || "",
-          title: p.title || p.name || "",
+          title: p.name || p.title || "",
           artist: p.artist || "",
-          genre: p.genre || (Array.isArray(p.categories) && p.categories[0]?.name) || "",
-          year: p.year ?? null,
-          price: typeof p.finalPrice === "number" ? p.finalPrice
-               : typeof p.price === "number" ? p.price : 0,
+          genre: (Array.isArray(p.categories) && p.categories[0]?.name) || p.genre || "",
+          year: typeof p.year === "number" ? p.year : null,
+          price: typeof p.finalPrice === "number" ? p.finalPrice : Number(p.price || 0),
           cover: p.cover || "",
           description: p.description || "",
-          // opciones para el detalle
           condition: p.condition,
           packaging: p.packaging,
           protection: !!p.protection,
           giftWrap: !!p.giftWrap,
-          basePrice: p.price
-        };
-        setProduct(normalized);
+          basePrice: p.price,
+        });
       } catch (e) {
         setError(e.message || "Error al cargar producto");
       } finally {

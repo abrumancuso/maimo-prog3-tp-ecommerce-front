@@ -10,10 +10,7 @@ export default function ProductCard({ product }) {
 
   return (
     <article className="group relative h-full flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition">
-      <Link
-        href={`/product/${product.id}`}
-        className="block aspect-square overflow-hidden"
-      >
+      <Link href={`/product/${product.id}`} className="block aspect-square overflow-hidden">
         <img
           src={product.cover || "/covers/placeholder.jpg"}
           alt={product.title}
@@ -22,18 +19,11 @@ export default function ProductCard({ product }) {
       </Link>
 
       <div className="p-4 flex-1 flex flex-col">
-        <span className="text-xs tracking-wide text-white/60">
-          {product.artist}
-        </span>
-
-        <h3 className="font-semibold leading-tight line-clamp-2">
-          {product.title}
-        </h3>
-
+        <span className="text-xs tracking-wide text-white/60">{product.artist}</span>
+        <h3 className="font-semibold leading-tight line-clamp-2">{product.title}</h3>
         {typeof product.year === "number" ? (
           <span className="mt-1 text-xs text-white/60">{product.year}</span>
         ) : null}
-
         <p className="mt-auto pt-1 text-lg font-bold">
           ${formatARS(priceToShow)}
         </p>
@@ -46,7 +36,6 @@ export default function ProductCard({ product }) {
         >
           Ver Más
         </Link>
-
         <button
           onClick={() => toggleFav(product.id)}
           className={`rounded-xl px-3 py-2 border border-white/15 hover:bg-white/10 ${

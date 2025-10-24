@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useShop } from "@/context/ShopContext";
 import { formatARS } from "@/utils/format";
 
@@ -23,24 +23,13 @@ export default function ProductDetail({ product }) {
   const [giftWrap, setGiftWrap] = useState(!!product.giftWrap);
   const [qty, setQty] = useState(1);
 
-  const finalPrice = useMemo(
-    () =>
-      calcularPrecio({
-        price: product.basePrice ?? product.price ?? 0,
-        condition,
-        packaging,
-        protection,
-        giftWrap,
-      }),
-    [
-      product.basePrice,
-      product.price,
-      condition,
-      packaging,
-      protection,
-      giftWrap,
-    ]
-  );
+  const finalPrice = calcularPrecio({
+    price: product.basePrice ?? product.price ?? 0,
+    condition,
+    packaging,
+    protection,
+    giftWrap,
+  });
 
   const onAdd = () => {
     addToCart({
@@ -73,16 +62,9 @@ export default function ProductDetail({ product }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold">{product.title || "—"}</h1>
-
-            {product.artist ? (
-              <p className="text-white/80 text-lg">{product.artist}</p>
-            ) : null}
-
-            {typeof product.year === "number" ? (
-              <p className="text-white/70">{product.year}</p>
-            ) : null}
+            {product.artist ? <p className="text-white/80 text-lg">{product.artist}</p> : null}
+            {typeof product.year === "number" ? <p className="text-white/70">{product.year}</p> : null}
           </div>
-
           {product.genre ? (
             <span className="shrink-0 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-wide text-white/70">
               {product.genre}
@@ -90,9 +72,7 @@ export default function ProductDetail({ product }) {
           ) : null}
         </div>
 
-        {product.description ? (
-          <p className="text-white/80">{product.description}</p>
-        ) : null}
+        {product.description ? <p className="text-white/80">{product.description}</p> : null}
 
         <div className="text-4xl font-extrabold mt-2">
           ${formatARS(finalPrice)}
@@ -110,9 +90,7 @@ export default function ProductDetail({ product }) {
               <option value="used">Usado</option>
             </select>
 
-            <label className="mt-4 block text-sm text-white/70">
-              Packaging
-            </label>
+            <label className="mt-4 block text-sm text-white/70">Packaging</label>
             <select
               className="w-full rounded-xl bg-white/5 border border-white/15 px-3 py-2"
               value={packaging}
@@ -133,9 +111,7 @@ export default function ProductDetail({ product }) {
                 checked={protection}
                 onChange={(e) => setProtection(e.target.checked)}
               />
-              <label htmlFor="prot" className="text-white/80">
-                Con protección
-              </label>
+              <label htmlFor="prot" className="text-white/80">Con protección</label>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -144,9 +120,7 @@ export default function ProductDetail({ product }) {
                 checked={giftWrap}
                 onChange={(e) => setGiftWrap(e.target.checked)}
               />
-              <label htmlFor="gift" className="text-white/80">
-                Envuelto para regalo
-              </label>
+              <label htmlFor="gift" className="text-white/80">Envuelto para regalo</label>
             </div>
 
             <label className="mt-4 block text-sm text-white/70">Cantidad</label>
@@ -169,9 +143,7 @@ export default function ProductDetail({ product }) {
           </button>
           <button
             onClick={() => toggleFav(product.id)}
-            className={`rounded-xl px-5 py-3 border border-white/20 hover:bg-white/10 ${
-              isFav ? "text-fuchsia-400" : ""
-            }`}
+            className={`rounded-xl px-5 py-3 border border-white/20 hover:bg-white/10 ${isFav ? "text-fuchsia-400" : ""}`}
           >
             {isFav ? "Quitar de Favoritos" : "Agregar a Favoritos"}
           </button>
